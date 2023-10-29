@@ -16,6 +16,10 @@ import config
 
 # serial port
 serial = usb_cdc.data
+uart = busio.UART(board.GP4, board.GP5, baudrate=115200)
+
+if config.serialUART is True:
+    serial = uart
 
 # release displays
 displayio.release_displays()
