@@ -59,7 +59,7 @@ steps_head.x = 28
 steps_head.y = 10
 
 # Steps taken
-text_input = Label(small_font, text="Booting...")
+text_input = Label(small_font, text="Init...")
 text_input.x = 1
 text_input.y = 34
 
@@ -75,7 +75,11 @@ splash.append(text_input)
 
 def recvSerial():
     if serial is not None:
-        if serial.connected:
+        if config.serialUART is True:
+            if serial.in_waiting > 0:
+                letter = serial.read()
+                return letter
+        elif serial.connected:
             if serial.in_waiting > 0:
                 letter = serial.read()
                 return letter
@@ -86,7 +90,9 @@ def sendSerial(data):
 buf = ""
 reset_pending = False
 reset_mono = time.monotonic()
-last_input = ""
+last_input = "Booting..."
+brightness_pending = True
+brightness_mono = time.monotonic()
 
 while True:
     input = recvSerial()
@@ -96,7 +102,15 @@ while True:
             text_input.text = buf
             last_input = buf
             buf = ""
+            display.wake()
+            display.brightness = 1
+            brightness_pending = True
+            brightness_mono = time.monotonic()
     if btn.value is False:
+        display.wake()
+        display.brightness = 1
+        brightness_pending = True
+        brightness_mono = time.monotonic()
         reset_prog = int((((time.monotonic() - reset_mono))/5)*100)
         if reset_prog > 100:
             reset_prog = 100
@@ -114,3 +128,8 @@ while True:
         prog_bar.progress = float(0)
         text_input.text = last_input
         reset_mono = time.monotonic()
+    if brightness_pending is True and (int(time.monotonic() - brightness_mono) > config.dimTime):
+        display.brightness = 0.01
+    if brightness_pending is True and (int(time.monotonic() - brightness_mono) > config.sleepTime):
+        display.sleep()
+        brightness_pending = False

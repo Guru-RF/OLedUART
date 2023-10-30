@@ -2,6 +2,11 @@ import usb_cdc
 import board
 import storage
 from digitalio import DigitalInOut, Direction, Pull
+import usb_midi
+import usb_hid
+
+usb_midi.disable()
+usb_hid.disable()
 
 btn = DigitalInOut(board.GP15)
 btn.direction = Direction.INPUT
