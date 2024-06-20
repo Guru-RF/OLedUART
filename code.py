@@ -13,11 +13,10 @@ from digitalio import DigitalInOut, Direction, Pull
 import config
 
 # serial port
-serial = usb_cdc.data
-uart = busio.UART(board.GP4, board.GP5, baudrate=115200)
+serial = busio.UART(board.GP4, board.GP5, baudrate=115200)
 
-if config.serialUART is True:
-    serial = uart
+if config.serialUART is False:
+    serial = usb_cdc.data
 
 # release displays
 displayio.release_displays()
@@ -84,8 +83,7 @@ def recvSerial():
                     return None
         else:
             if serial.in_waiting > 0:
-                letter = serial.read(serial.in_waiting)
-                return letter
+                return serial.read(serial.in_waiting)
             else:
                 return None
 
